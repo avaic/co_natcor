@@ -1,0 +1,45 @@
+!@encoding CP1252
+model Knapsack
+uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+
+
+!sample declarations section
+declarations
+	n=7
+	items = 1..n
+	weights: array(items) of integer
+	profits: array(items) of integer
+	x: array(items) of mpvar
+end-declarations
+
+weights :: [5,5,6,7,8,12,16]
+profits :: [4,5,6,6,6,10,15]
+
+forall(i in items) x(i) <= 1
+sum(i in items) weights(i)*x(i) <= 20
+
+!5*x1+5*x2+6*x3+7*x4+8*x5+12*x6+16*x7<=20
+!4*x1+5*x2+6*x3+6*x4+6*x5+10*x6+15*x7
+!cover inequalities
+x(1)+x(7)<=1
+x(2)+x(7)<=1
+x(3)+x(7)<=1
+x(2)+x(3)+x(6)<=2
+x(3)+x(4)+x(6)<=2
+x(4)+x(7)<=1
+!extended cover inequalities - 
+x(2)+x(3)+x(6)+x(7)<=2
+x(1)+x(2)+x(6)+x(7)<=2
+x(3)+x(4)+x(5)+x(6)+x(7)<=2
+x(1)+x(2)+x(3)+x(4)+x(5)+2*x(6)+3*x(7)<=3
+
+profit := sum(i in items) profits(i)*x(i)
+weight := sum(i in items) weights(i)*x(i)
+
+maximize(profit)
+
+writeln(getobjval)
+writeln(getsol(x(1)),';',getsol(x(2)),';',getsol(x(3)),';',getsol(x(4)),';',getsol(x(5)),';',getsol(x(6)),';',getsol(x(7)))
+writeln(getsol(weight))
+
+end-model
